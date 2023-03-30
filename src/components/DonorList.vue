@@ -12,8 +12,9 @@
             </v-row>
             <v-row>
               <v-col>
-				<div class="c-donorList_table">
-					<input type="text" placeholder="Search by name" />
+				<div class="c-donorList_table elevation-7">
+					{{ search_term }}
+					<input type="text" v-model="search_term" placeholder="Search by name" />
 					<table v-if="donors">
 						<thead>
 							<tr>
@@ -33,10 +34,13 @@
 						</tbody>
 						<tfoot>
 							<tr>
-								<th>Rows per page</th>
+								<th class="text-left py-5 px-5">Rows per page {{ donors.meta.per_page }}</th>
 								<th></th>
 								<th></th>
-								<th>{{ donors.links }}</th>
+								<th class="text-right py-5 px-5">
+									<span v-if="donors.links.prev" @click="loadPage(donors.links.prev)">< Prev</span>
+									<span v-if="donors.links.next" @click="loadPage(donors.links.next)">Next ></span>
+								</th>
 							</tr>
 						</tfoot>
 					</table>
@@ -57,10 +61,27 @@ export default {
 
 	data() {
 		return {
-			donors: null
+			donors: null,
+			sort: null,
+			sort_order: null,
+			search_term: null
 		};
 	},
-	mounted() {
+	methods: {
+		searchResult() {
+
+		},
+
+		loadPage(url) {
+			// avail sorting & first_donation last_donation search
+			axios
+			.get(url)
+			.then((response) => {
+				this.donors = response.data
+			});
+		}
+	},
+	mounted () {
 		axios
 		.get("https://interview.ribbon.giving/api/donors")
 		.then((response) => {
@@ -70,7 +91,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 	.c-donorList_table {
 		border-radius: .5rem;
 		width: 100%;
@@ -81,13 +102,17 @@ export default {
 	table {
 		border-collapse: collapse;
 		width: 100%;
-	}
 
-	table thead {
-		background: #3a3a4005;
-	}
+		tfoot th {
+			border: none;
+		}
+		
+		thead {
+			background: #3a3a4005;
+		}
 
-	table th, table td {
-		border-bottom: 1px solid #EFEFEF;
+		th, td {
+			border-bottom: 1px solid #EFEFEF;
+		}
 	}
 </style>
