@@ -1,16 +1,16 @@
 <template>
   <v-app>
     <v-app-bar>
-      <v-container class="d-flex align-center py-0">
+      <v-container class="d-flex align-center py-0" color="#f2f3f6">
         <v-app-bar-title class="pl-0">
           <div class="d-flex align-center">Ribbon</div>
         </v-app-bar-title>
       </v-container>
     </v-app-bar>
 
-    <v-main>
+    <v-main color="#f2f3f6">
       <section id="hero">
-        <v-sheet class="d-flex align-center pb-16" color="grey-darken-3">
+        <v-sheet class="d-flex align-center pb-16" color="#f2f3f6">
           <v-container class="text-center">
             <v-responsive class="mx-auto">
               <h3 class="text-h3">Try Ribbon's all new features</h3>
@@ -27,7 +27,7 @@
 
       <DonorsList />
 
-      <v-sheet class="py-16" color="#1818181a">
+      <v-sheet class="py-16" color="#f2f3f6">
         <section id="grid">
           <v-container>
             <v-row justify="space-between">
