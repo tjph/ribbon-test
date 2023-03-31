@@ -21,15 +21,15 @@
 							<th class="text-left py-5 px-5">Name</th>
 							<th class="text-left py-5 px-5">Email</th>
 							<th class="text-left py-5 px-5" @click="sortResults('total_donations')">
-								<div class="sort d-flex align-center">
+								<div class="sort d-flex align-center clickable">
 									<span>Total Donations</span>
-									<svg v-if="sort_type === 'total_donations'" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M7.33 24l-2.83-2.829 9.339-9.175-9.339-9.167 2.83-2.829 12.17 11.996z"/></svg>
+									<ArrowSvg v-if="sort_type === 'total_donations'" :class="sort_order" class="sort" />
 								</div>
 							</th>
 							<th class="text-left py-5 px-5" @click="sortResults('first_donation')">
-								<div class="sort d-flex align-center">
+								<div class="sort d-flex align-center clickable">
 									<span>First Donation</span>
-									<svg v-if="sort_type === 'first_donation'" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M7.33 24l-2.83-2.829 9.339-9.175-9.339-9.167 2.83-2.829 12.17 11.996z"/></svg>
+									<ArrowSvg v-if="sort_type === 'first_donation'" :class="sort_order" class="sort" />
 								</div>
 							</th>
 						</tr>
@@ -46,10 +46,16 @@
 						<tr>
 							<th class="text-left py-5 px-5">Rows per page {{ donors.meta.per_page }}</th>
 							<th></th>
-							<th></th>
-							<th class="text-right py-5 px-5">
-								<span v-if="donors.links.prev" @click="loadPage(donors.links.prev)">< Prev</span>
-								<span v-if="donors.links.next" @click="loadPage(donors.links.next)">Next ></span>
+							<th>
+								<span>{{ donors.meta.from }} to {{ donors.meta.to }}</span>
+							</th>
+							<th class="text-right py-5 px-5 d-flex justify-end">
+								<span v-if="donors.links.prev" @click="loadPage(donors.links.prev)" class="clickable">
+									<ArrowSvg class="page prev" />
+								</span>
+								<span v-if="donors.links.next" @click="loadPage(donors.links.next)" class="clickable">
+									<ArrowSvg class="page next" />
+								</span>
 							</th>
 						</tr>
 					</tfoot>
@@ -64,10 +70,13 @@
 
 <script>
 import axios from "axios";
+import ArrowSvg from './ArrowSvg.vue';
 
 export default {
 	name: 'DonorList',
-
+	components: {
+    	ArrowSvg
+	},
 	data() {
 		return {
 			donors: null,
@@ -82,14 +91,11 @@ export default {
 	computed: {
   	},
 	methods: {
-		// displayEmail (email) {
-		// 	const emailArr = email.split('@');
-		// 	return `${emailArr[0]}<wbr>@${emailArr[1]}`;
-		// },
-	
 		searchResult() {
 			if (!this.isLoading) {
 				console.log('Searching...', this.search_term);
+				this.sort_order = null;
+				this.sort_type = null;
 				this.loadPage(this.apiUrl);
 			}
 		},
@@ -117,6 +123,14 @@ export default {
 				apiUrl.searchParams.append('search', this.search_term);
 			}
 
+			if (this.sort_type) {
+				apiUrl.searchParams.append('sort_by', this.sort_type);
+			}
+
+			if (this.sort_order) {
+				apiUrl.searchParams.append('sort_direction', this.sort_order);
+			}
+
 			console.log('apiUrl', apiUrl.href);
 
 			this.isLoading = true;
@@ -126,10 +140,12 @@ export default {
 			.get(apiUrl.href)
 			.then((response) => {
 				this.donors = response.data;
-				this.current_page = response.meta.current_page;
 			})
 			.catch(error => console.log(error))
-			.finally(() => this.isLoading = false)
+			.finally(() => {
+				this.isLoading = false;
+				this.current_page = this.donors.meta.current_page;
+			})
 		}
 	},
 	mounted () {
@@ -145,7 +161,7 @@ export default {
 		border-radius: .5rem;
 		width: 100%;
 		background: #fff;
-		color: #3A3A40;
+		color: #3A3A4087;
 
 		&-email {
 			color: green;
@@ -153,19 +169,14 @@ export default {
 			word-break: break-all;
 		}
 
-		.sort {
-
-			svg {
-				width: 15px !important;
-    			transform: rotate(90deg);
-				flex: 0 0 15px;
-				margin-left: 8px;
-			}
+		.clickable {
+			cursor: pointer;
+			display: flex;
 		}
 
 		input {
-			border: 2px solid #3A3A40;
-			border-radius: 10px;
+			border: 2px solid #3A3A4087;
+			border-radius: 5px;
 			width: 40%;
 			box-sizing: border-box;
 
@@ -177,6 +188,7 @@ export default {
 		table {
 			border-collapse: collapse;
 			width: 100%;
+			table-layout: fixed;
 
 			tfoot th {
 				border: none;
