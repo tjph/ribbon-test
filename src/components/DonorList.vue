@@ -7,6 +7,7 @@
 			<h2 class="text-h4">Ribbon Donor List</h2>
 			<p class="text-primary mt-3">In Beta now!</p>
 			<p class="mt-3">See all those that have given in one place!</p>
+			<p>{{ sort_order }}{{ sort_type }}</p>
 			</v-col>
 		</v-row>
 		<v-row>
@@ -18,14 +19,24 @@
 						<tr>
 							<th class="text-left py-5 px-5">Name</th>
 							<th class="text-left py-5 px-5">Email</th>
-							<th class="text-left py-5 px-5">Total Donations</th>
-							<th class="text-left py-5 px-5">First Donation</th>
+							<th class="text-left py-5 px-5" @click="sortResults('total_donations')">
+								<div class="sort d-flex align-center">
+									<span>Total Donations</span>
+									<svg v-if="sort_type === 'total_donations'" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M7.33 24l-2.83-2.829 9.339-9.175-9.339-9.167 2.83-2.829 12.17 11.996z"/></svg>
+								</div>
+							</th>
+							<th class="text-left py-5 px-5" @click="sortResults('first_donation')">
+								<div class="sort d-flex align-center">
+									<span>First Donation</span>
+									<svg v-if="sort_type === 'first_donation'" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M7.33 24l-2.83-2.829 9.339-9.175-9.339-9.167 2.83-2.829 12.17 11.996z"/></svg>
+								</div>
+							</th>
 						</tr>
 					</thead>
 					<tbody>
 						<tr v-for="item in donors.data" :key="item.id">
 							<td class="py-5 px-5">{{ item.full_name }}</td>
-							<td class="c-donorList_table-email py-5 px-5" width="50%">{{ item.email }}</td>
+							<td class="c-donorList_table-email py-5 px-5">{{ item.email }}</td>
 							<td class="py-5 px-5">{{ item.total_donations }}</td>
 							<td class="py-5 px-5">{{ item.first_donation }}</td>
 						</tr>
@@ -59,9 +70,11 @@ export default {
 	data() {
 		return {
 			donors: null,
-			sort: null,
+			sort_type: null,
 			sort_order: null,
-			search_term: null
+			search_term: null,
+			page: 1,
+			isLoading: false
 		};
 	},
 	computed: {
@@ -81,10 +94,25 @@ export default {
 			});
 		},
 
+		sortResults(type) {
+			this.sort_type = type;
+			this.sort_order = this.sort_order && this.sort_order === 'asc' ? 'desc' : 'asc';
+		},
+
 		loadPage(url) {
+			console.log('pagination', url);
+
+			let apiUrl = new URL(url);
+
+			if (this.search_term) {
+				apiUrl.searchParams.append('search', this.search_term);
+			}
+
+			console.log('apiUrl', apiUrl.href);
+
 			// avail sorting & first_donation last_donation search
 			axios
-			.get(url)
+			.get(apiUrl.href)
 			.then((response) => {
 				this.donors = response.data
 			});
@@ -113,8 +141,25 @@ export default {
 			word-break: break-all;
 		}
 
+		.sort {
+
+			svg {
+				width: 15px !important;
+    			transform: rotate(90deg);
+				flex: 0 0 15px;
+				margin-left: 8px;
+			}
+		}
+
 		input {
 			border: 2px solid #3A3A40;
+			border-radius: 10px;
+			width: 40%;
+			box-sizing: border-box;
+
+			@media (max-width: 800px) {
+				width: calc(100% - 40px);
+			}
 		}
 
 		table {
