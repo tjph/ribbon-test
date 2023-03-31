@@ -15,7 +15,7 @@
 				<v-sheet width="400" class="mx-auto">
 				<v-form
 					v-model="valid"
-					validate-on="submit"
+					ref="form"
 					@submit.prevent="submit"
 				>
 					<v-textarea
@@ -33,14 +33,13 @@
 					:rules="emailRules"
                     item-text="email" 
                     item-value="id" 
-                    placeholder="Start typing to Search" 
+                    placeholder="Start typing to Search Email" 
                     return-object
 					></v-autocomplete>
 
 					<v-text-field
-					v-model="model.id"
+					v-model="donorId"
 					:rules="donorRules"
-					readonly
 					label="Donor Id"
 					></v-text-field>
 					<v-btn type="submit" block class="mt-2">Send</v-btn>
@@ -64,31 +63,26 @@ export default {
 			search: null,
     		isLoading: false,
     		model: [ { "email": null, "full_name": null, "id": null } ],
-			message: "",
+			donorId: null,
+			message: null,
 			emailRules: [
-				(value) => {
-					if (value) return true;
-
-					return "E-mail is required.";
-				},
+				v => !!v || 'E-mail is required',
+				v => v && v.email && /^(([^<>()[\]\\.,;:\s@']+(\.[^<>()\\[\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(v.email) || 'E-mail must be valid'
 			],
 			messageRules: [
-				(value) => {
-					if (value && value.length > 15) return true;
-
-					return "Message is required (15 characters min).";
-				},
+				v => !!v || 'Message is required',
+      			v => (v && v.length > 15) || 'Message must be more than 15 characters'
 			],
 			donorRules: [
-				(value) => {
-					if (value) return true;
-
-					return "Donor Id is required.";
-				},
+				v => !!v || 'Donor Id is required',
 			],
 		};
 	},
 	watch: {
+		model(val) {
+           //watch you code here
+		   this.donorId = val?.id || null;
+ 		},
 		search (val) {
  			// Items have already been requested
 			if (this.isLoading) return
@@ -114,7 +108,13 @@ export default {
 	methods: {
 		async submit() {
       		// Send message to server.
-			console.log(this.model.email, this.model.full_name, this.model.id, this.message);
+			if (this.$refs.form.validate()) {
+				console.log('FORM VALID');
+				console.log(this.model.email, this.model.full_name, this.model.id, this.message);
+				this.$refs.form.reset();
+			} else {
+				console.log('FORM ERROR')
+			}
 
     	}
 	}
