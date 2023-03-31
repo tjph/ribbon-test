@@ -14,6 +14,7 @@
 			<v-col>
 			<div class="c-donorList_table elevation-7">
 				<input type="text" v-model="search_term" v-on:keyup.enter="searchResult" class="py-3 px-3 ma-5" placeholder="Search by name" />
+				{{ isLoading }}{{ page }}
 				<table v-if="donors">
 					<thead>
 						<tr>
@@ -74,29 +75,37 @@ export default {
 			sort_order: null,
 			search_term: null,
 			page: 1,
-			isLoading: false
+			isLoading: false,
+			apiUrl: 'https://interview.ribbon.giving/api/donors'
 		};
 	},
 	computed: {
   	},
 	methods: {
-		displayEmail (email) {
-			const emailArr = email.split('@');
-			return `${emailArr[0]}<wbr>@${emailArr[1]}`;
-		},
+		// displayEmail (email) {
+		// 	const emailArr = email.split('@');
+		// 	return `${emailArr[0]}<wbr>@${emailArr[1]}`;
+		// },
 	
 		searchResult() {
-			console.log('Searching...', this.search_term);
-			axios
-			.get(`https://interview.ribbon.giving/api/donors?search=${this.search_term}`)
-			.then((response) => {
-				this.donors = response.data
-			});
+			if (!this.isLoading) {
+				console.log('Searching...', this.search_term);
+				this.loadPage(this.apiUrl);
+			}
 		},
 
 		sortResults(type) {
-			this.sort_type = type;
-			this.sort_order = this.sort_order && this.sort_order === 'asc' ? 'desc' : 'asc';
+			if (!this.isLoading) {
+				this.sort_type = type;
+				this.sort_order = this.sort_order && this.sort_order === 'asc' ? 'desc' : 'asc';
+				this.loadPage(this.apiUrl);
+			}
+		},
+
+		nextPrevPage(url) {
+			if (!this.isLoading) {
+				this.loadPage(url);
+			}
 		},
 
 		loadPage(url) {
@@ -110,20 +119,23 @@ export default {
 
 			console.log('apiUrl', apiUrl.href);
 
+			this.isLoading = true;
+
 			// avail sorting & first_donation last_donation search
 			axios
 			.get(apiUrl.href)
 			.then((response) => {
-				this.donors = response.data
-			});
+				this.donors = response.data;
+				this.current_page = response.meta.current_page;
+			})
+			.catch(error => console.log(error))
+			.finally(() => this.isLoading = false)
 		}
 	},
 	mounted () {
-		axios
-		.get("https://interview.ribbon.giving/api/donors")
-		.then((response) => {
-			this.donors = response.data
-		});
+		if (!this.isLoading) {
+			this.loadPage(this.apiUrl);
+		}
 	}
 }
 </script>
