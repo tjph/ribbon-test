@@ -13,6 +13,7 @@
 				</v-responsive>
 				</v-col>
 				<v-sheet width="400" class="mx-auto">
+				<div v-if="success">Message sent. Thank you!</div>
 				<v-form
 					v-model="valid"
 					ref="form"
@@ -52,6 +53,8 @@
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
 	name: 'DonorMessage',
 	components: {
@@ -59,6 +62,7 @@ export default {
 	data() {
 		return {
 			valid: false,
+			success: false,
 			entries: [],
 			search: null,
     		isLoading: false,
@@ -79,7 +83,7 @@ export default {
 		};
 	},
 	watch: {
-		model(val) {
+		model (val) {
            //watch you code here
 		   this.donorId = val?.id || null;
  		},
@@ -88,8 +92,9 @@ export default {
 			if (this.isLoading) return
 
 			this.isLoading = true
+			// this.success = false
 
-			// Lazily load input items
+			// load input items
 			fetch(`https://interview.ribbon.giving/api/donors?search=${val}`)
 				.then(res => res.json())
 				.then(res => {
@@ -107,12 +112,23 @@ export default {
   	},
 	methods: {
 		async submit() {
+			this.success = false;
       		// Send message to server.
 			if (this.$refs.form.validate()) {
-				console.log('FORM VALID');
-				console.log(this.model.email, this.model.full_name, this.model.id, this.message);
+
+				await axios({
+					method: 'post',
+					url: `https://interview.ribbon.giving/api/donors/${this.model.id}/send-message`,
+					data: {message: this.message},
+					headers: {
+						'Content-Type': 'application/json',
+					}
+				})
+
+				this.success = true;
 				this.$refs.form.reset();
 			} else {
+				this.success = false;
 				console.log('FORM ERROR')
 			}
 
