@@ -27,46 +27,7 @@
 
       <DonorsList />
 
-      <v-sheet class="py-16" color="#f2f3f6">
-        <section id="grid">
-          <v-container>
-            <v-row justify="space-between">
-              <v-col cols="auto">
-                <v-responsive width="350">
-                  <h2 class="text-h4">Show your support feature</h2>
-                  <p class="text-success mt-3">Available now!</p>
-                  <p class="mt-3">
-                    Easily send messages to those that have given!
-                  </p>
-                </v-responsive>
-              </v-col>
-              <v-sheet width="400" class="mx-auto">
-                <v-form
-                  v-model="valid"
-                  validate-on="submit"
-                  @submit.prevent="submit"
-                >
-                  <v-textarea
-                    v-model="message"
-                    :rules="messageRules"
-                    label="Message"
-                  ></v-textarea>
-                  <v-text-field
-                    v-model="email"
-                    :rules="emailRules"
-                    label="Email"
-                  ></v-text-field>
-                  <v-text-field
-                    v-model="donor_id"
-                    label="Donor Id"
-                  ></v-text-field>
-                  <v-btn type="submit" block class="mt-2">Send</v-btn>
-                </v-form>
-              </v-sheet>
-            </v-row>
-          </v-container>
-        </section>
-      </v-sheet>
+      <DonorMessage />
     </v-main>
 
     <v-footer>
@@ -82,40 +43,22 @@
 </template>
 
 <script>
+import axios from "axios";
+import DonorMessage from './components/DonorMessage';
 import DonorsList from './components/DonorList';
 
 export default {
   name: "App",
   components: {
+    DonorMessage,
     DonorsList
   },
 
   data() {
     return {
-      valid: false,
-      email: "",
-      donor_id: "",
-      message: "",
-      emailRules: [
-        (value) => {
-          if (value) return true;
-
-          return "E-mail is required.";
-        },
-      ],
-      messageRules: [
-        (value) => {
-          if (value) return true;
-
-          return "Message is required.";
-        },
-      ],
     };
   },
   methods: {
-    async submit() {
-      // Send message to server.
-    },
-  },
+  }
 };
 </script>
