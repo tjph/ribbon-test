@@ -1,16 +1,16 @@
 <template>
   <v-app>
     <v-app-bar>
-      <v-container class="d-flex align-center py-0">
+      <v-container class="d-flex align-center py-0" color="#f2f3f6">
         <v-app-bar-title class="pl-0">
           <div class="d-flex align-center">Ribbon</div>
         </v-app-bar-title>
       </v-container>
     </v-app-bar>
 
-    <v-main>
+    <v-main color="#f2f3f6">
       <section id="hero">
-        <v-sheet class="d-flex align-center pb-16" color="grey-darken-3">
+        <v-sheet class="d-flex align-center pb-16" color="#f2f3f6">
           <v-container class="text-center">
             <v-responsive class="mx-auto">
               <h3 class="text-h3">Try Ribbon's all new features</h3>
@@ -25,43 +25,7 @@
         </v-sheet>
       </section>
 
-      <v-sheet>
-        <section id="filter">
-          <v-container>
-            <v-row justify="space-between">
-              <v-col cols="auto">
-                <h2 class="text-h4">Ribbon Donor List</h2>
-
-                <p class="text-primary mt-3">In Beta now!</p>
-
-                <p class="mt-3">See all those that have given in one place!</p>
-              </v-col>
-            </v-row>
-            <v-row>
-              <v-col>
-                <table v-if="donors">
-                  <thead>
-                    <tr>
-                      <th class="text-left">Name</th>
-                      <th class="text-left">Email</th>
-                      <th class="text-left">Total Donations</th>
-                      <th class="text-left">First Donation</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-for="item in donors.data" :key="item.id">
-                      <td>{{ item.full_name }}</td>
-                      <td>{{ item.email }}</td>
-                      <td>{{ item.total_donations }}</td>
-                      <td>{{ item.first_donation }}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </v-col>
-            </v-row>
-          </v-container>
-        </section>
-      </v-sheet>
+      <DonorsList />
 
       <DonorMessage />
     </v-main>
@@ -81,22 +45,18 @@
 <script>
 import axios from "axios";
 import DonorMessage from './components/DonorMessage';
+import DonorsList from './components/DonorList';
 
 export default {
   name: "App",
   components: {
-    DonorMessage
+    DonorMessage,
+    DonorsList
   },
 
   data() {
     return {
-      donors: null
     };
-  },
-  mounted() {
-    axios
-      .get("https://interview.ribbon.giving/api/donors")
-      .then((response) => (this.donors = response.data));
   },
   methods: {
   }
